@@ -1,6 +1,14 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local oldGui = PlayerGui:FindFirstChild("StableTargetGui")
+if oldGui then
+	oldGui:Destroy()
+end
 
 local TargetName = ""
 local RotationSpeed = 6
@@ -710,12 +718,12 @@ RunService.Heartbeat:Connect(function(dt)
 		MainToggleStroke.Color = color
 	end
 
-	if InitialMenuButton and InitialMenuButton.Parent then
-		InitialMenuStroke.Color = color
-	end
-
 	if InitialFrame and InitialFrame.Parent then
 		InitialStroke.Color = color
+	end
+
+	if InitialMenuButton and InitialMenuButton.Parent then
+		InitialMenuStroke.Color = color
 	end
 
 	if SettingsFrame and SettingsFrame.Parent then
@@ -729,4 +737,89 @@ RunService.Heartbeat:Connect(function(dt)
 	if LanguageFrame and LanguageFrame.Parent then
 		LanguageStroke.Color = color
 	end
+
+	local char = LocalPlayer.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+	local targetPlayer = TargetName ~= "" and Players:FindFirstChild(TargetName)
+	local targetHrp = targetPlayer
+		and targetPlayer.Character
+		and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+	if hum and states.AntiSit then
+		hum.Sit = false
+	end
+
+	if targetHrp and hrp then
+		hrp.AssemblyLinearVelocity = Vector3.zero
+		hrp.AssemblyAngularVelocity = Vector3.zero
+
+		if states.Stick then
+			hrp.CFrame = targetHrp.CFrame * CFrame.new(0, RotationDistance, 0)
+
+		elseif states.Spin then
+			angle = angle + (dt * RotationSpeed)
+
+			local position = targetHrp.Position + Vector3.new(
+				math.cos(angle) * RotationDistance,
+				0,
+				math.sin(angle) * RotationDistance
+			)
+
+			hrp.CFrame = CFrame.new(position, targetHrp.Position)
+
+		elseif states.Orbit then
+			angle = angle + (dt * RotationSpeed)
+
+			local position = targetHrp.Position + Vector3.new(
+				math.cos(angle) * RotationDistance,
+				RotationDistance * 0.3 + math.sin(angle * 0.5) * (RotationDistance * 0.5),
+				math.sin(angle) * RotationDistance
+			)
+
+			hrp.CFrame = CFrame.new(position, targetHrp.Position)
+
+		elseif states.Float then
+			waveTime = waveTime + dt
+
+			local vertical =
+				RotationDistance
+				+ math.sin(waveTime * 2) * math.max(RotationDistance * 0.35, 0.5)
+
+			hrp.CFrame =
+				(targetHrp.CFrame * CFrame.new(0, vertical, 2))
+				* CFrame.Angles(
+					math.sin(waveTime * 2) * 0.25,
+					0,
+					math.cos(waveTime * 2) * 0.25
+				)
+
+		elseif states.Jitter then
+			local jitterDelay = math.clamp(
+				0.15 / math.max(RotationSpeed / 6, 0.1),
+				0.015,
+				0.2
+			)
+
+			if os.clock() - lastJitter > jitterDelay then
+				lastJitter = os.clock()
+
+				local distance = math.max(RotationDistance, 1)
+
+				local randomPos = Vector3.new(
+					math.random(-100, 100) / 100 * distance,
+					math.random(-50, 100) / 100 * distance,
+					math.random(-100, 100) / 100 * distance
+				)
+
+				hrp.CFrame = CFrame.new(
+					targetHrp.Position + randomPos,
+					targetHrp.Position
+				)
+			end
+		end
+	end
 end)
+
+updateLanguage()
