@@ -3,7 +3,38 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+if not LocalPlayer then
+	local startTime = os.clock()
+
+	repeat
+		LocalPlayer = Players.LocalPlayer
+		if not LocalPlayer then
+			task.wait(0.1)
+		end
+	until LocalPlayer or os.clock() - startTime > 15
+
+	if not LocalPlayer then
+		return
+	end
+end
+
+local PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+
+if not PlayerGui then
+	local startTime = os.clock()
+
+	repeat
+		PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+		if not PlayerGui then
+			task.wait(0.1)
+		end
+	until PlayerGui or os.clock() - startTime > 15
+end
+
+if not PlayerGui then
+	return
+end
 
 local oldGui = PlayerGui:FindFirstChild("StableTargetGui")
 if oldGui then
