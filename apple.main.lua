@@ -706,4 +706,27 @@ RunService.Heartbeat:Connect(function(dt)
 		MainStroke.Color = color
 	end
 
-	if MainToggle
+	if MainToggleButton and MainToggleButton.Parent then
+		MainToggleStroke.Color = color
+	end
+
+	if InitialMenuButton and InitialMenuButton.Parent then
+		InitialMenuStroke.Color = color
+	end
+
+	if InitialFrame and InitialFrame.Parent then
+		InitialStroke.Color = color
+	end
+
+	if SettingsFrame and SettingsFrame.Parent then
+		SettingsStroke.Color = color
+	end
+
+	if GearButton and GearButton.Parent then
+		GearStroke.Color = color
+	end
+
+	if LanguageFrame and LanguageFrame.Parent then
+		LanguageStroke.Color = color
+	end
+end)
