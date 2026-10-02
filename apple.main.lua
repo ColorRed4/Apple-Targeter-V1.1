@@ -1,3 +1,7 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
 local TargetName = ""
 local RotationSpeed = 6
 local RotationDistance = 5
